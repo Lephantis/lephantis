@@ -1,0 +1,112 @@
+import random, copy
+
+class Entity(object):
+    def __init__(self):
+        self.health = 0
+        self.name = ""
+        self.attackList = []
+
+class Player(Entity):
+        def __init__(self,name):
+            self.health = 50
+            self.name = name
+            self.equippedWeapon = Weapon("Fist", 1.00)
+            self.inventory = [Weapon("Fist", 1.00), Weapon("Dagger", 1.12), Weapon("Short sword", 1.45)]
+            self.attackList = [Attack("Jab", 5, self.equippedWeapon.modifier),Attack("Uppercut", 8, self.equippedWeapon.modifier),Attack("Kick", 7, self.equippedWeapon.modifier)]
+            self.isAlive = True
+
+class Enemy(Entity):
+    def __init__ (self, name, health):
+        self.health = health
+        self.name = name
+        self.isAlive = True
+
+    def getAttack(self):
+        random.choice(self.attackList)
+        return
+
+class Attack(object):
+    def __init__ (self, name, damage, modifier):
+        self.name = name
+        self.damage = damage * modifier
+
+class Item(object):
+    def __init__ (self, name):
+        self.name = name
+
+class Weapon(Item):
+    def __init__ (self, name, modifier):
+        self.name = name
+        self.modifier = modifier
+
+def attackTurn(playerAttack, player, enemy):
+    print("You used: %s" %playerAttack.name)
+    enemy.health -= playerAttack.damage
+    if enemy.health >0:
+        enemyAttack = enemy.getAttack()
+        print("Enemy %s used: %s" % (enemy.name, enemyAttack.name))
+        player.health -= enemy.getAttack().damage
+        if not player.health > 0:
+            player.isAlive = False
+    else:
+        enemy.isAlive = False
+
+    if player.isAlive and enemy.isAlive:
+        return
+
+    elif not player.isAlive and enemy.isAlive:
+        print("You have Died!")
+        return
+    elif not enemy.isAlive and player.isAlive:
+        print("You have killed %s!" % enemy.name)
+        return
+    else:
+        print("A bizarre draw has occured.")
+        return
+
+    def changeWeapons(p):
+        for i in range(len(p.inventory)):
+            print("%d: %s" % (i, p.inventory[i].name))
+            i = input("Enter which one you'd like to set your weapon to: ")
+            i = int(i)
+            p.equippedWeapon = p.inventory[i]
+    p = Player(input("What is your name?\t\t"))
+
+    # populate list of enemies
+    enemyList = [Enemy("Giant rat", 20), Enemy("Land pirahna", 30)]
+    enemyList[0].attackList = [Attack("Gnaw", 6, 1.00), Attack("Bite Down", 10, 1.00)]
+    enemyList[1].attackList = [Attack("Gnash", 20, 1.00), Attack("Fin Slap", 4, 1.00)]
+
+    run = True
+    currentEnemy = None
+
+    while run:
+        if currentenemy == None or currentEnemy.isAlive == False:
+            currentEnemy = copy.deepcopy(random.choice(enemyList))
+            
+        if p.isAlive == True:
+            print("\n%s CURRENT HEALTH:\t%d" % (p.name, p.health))
+            print("%s CURRENT HEALTH:\t%d\n\n" % (currentEnemy.name, currentenemy.health))
+
+            for i in range(len(p.attackList)):
+                print("Enter %d to use the move: %s" % (i, p.attackList[i]. name))
+                print("Enter %d to max your HP." % len(p.attackList))
+                print("Enter %d to change weapons." % (len(p.attackList)+1))
+                print("Enter %d to exit." % (len(p.attackList) +2))
+
+                playerIn = input("What do you choose?")
+                playerIn = int(playerIn)
+
+                if playerIn < len(p.attackList):
+                    attackTurn(p.attackList[playerIn], p, currentenemy)
+                elif playerIn == len(p.attackList):
+                    p.health = 50
+                elif playerIn == (len(p.attackList) + 1):
+                    changeWeapons(p)
+                elif playerIn == (len(p.attackList) + 2):
+                    run = False
+                else:
+                    "That's not a valid input.\n\n\n"
+        else:
+            print("You died! Gamve over.")
+            run = False
